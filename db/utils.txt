@@ -1,0 +1,65 @@
+create table clients(
+    id serial primary key ,
+    user_id varchar(255) not null ,
+    fullname varchar(255),
+    phone varchar(255) not null ,
+    password varchar(255) not null ,
+    location json,
+    status varchar(10),
+    created_at timestamp
+);
+
+create table merchants
+(
+    id         serial primary key,
+    user_id varchar(255) not null ,
+    fullname   varchar(255) not null,
+    phone      varchar(20)  not null unique,
+    email      varchar(30) not null ,
+    password   varchar(40)  not null,
+    status     varchar(10) check ( status in ('BLOCK', 'ACTIVE') ),
+    created_at timestamp
+);
+
+
+create table product(
+    id SERIAL PRIMARY KEY ,
+    name varchar(255) not null,
+    price decimal default 0,
+    term timestamp,
+    discount decimal default 0,
+    status varchar(10) check ( status in ('INACTIVE' ,'ACTIVE' ) ),
+    is_sold_out bool default 'f',
+    merchant_id INTEGER,
+    created_at timestamp,
+    foreign key (merchant_id) references merchants(id)
+);
+
+create table baskets(
+    id serial primary key ,
+    product_id integer not null ,
+    user_id integer not null ,
+    count integer default 1,
+    created_at timestamp,
+    foreign key (product_id)
+                   references product(id) on delete cascade ,
+    foreign key (user_id)
+                   references clients(id) on delete cascade
+);
+
+create table orders(
+    id serial primary key,
+    customer_id integer not null,
+    merchant_id integer not null,
+    basket_id integer not null,
+    payment_method varchar(255) check ( payment_method in ('BY_CARD' , 'BY_CASH') ),
+    total decimal,
+    created_at timestamp,
+    foreign key (customer_id) references
+                clients(id),
+    foreign key (merchant_id) references
+                   merchants(id),
+    foreign key (basket_id) references
+                   baskets(id)
+);
+
